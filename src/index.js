@@ -1,5 +1,12 @@
 import React from "react";
-import ReactDom from "react-dom";
+import { createRoot } from "react-dom/client";
 import { App } from "./App";
 
-ReactDom.render(<App />, document.getElementById("root"));
+/**
+ * React18のレンダリング方法
+ * 1: import { createRoot } from 'react-dom/client';
+ * 2: createRoot(レンダリング対象の要素).render(レンダリングするファイル);
+ */
+
+const root = createRoot(document.getElementById("root"));
+root.render(<App />);

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import "./styles.css";
+import { InputTodo } from "./components/InputTodo";
+import { IncompleteTodos } from "./components/IncompleteTodos";
+import { CompleteTodos } from "./components/CompleteTodos";
 
 export const App = () => {
   //未完了、完了の表示テキストをstateで持つ
-  const [incompleteTodos, setIncompleteTodos] = useState([
-    "ああああ",
-    "いいいい"
-  ]);
-  const [completeTodos, setCompleteTodos] = useState(["うううう"]);
+  const [incompleteTodos, setIncompleteTodos] = useState([]);
+  const [completeTodos, setCompleteTodos] = useState([]);
   //テキストボックスで入力した値を取り出して使うためにstateを持つ
   const [todoText, setTodoText] = useState("");
 
@@ -33,48 +33,41 @@ export const App = () => {
     setIncompleteTodos(newTodos);
   };
 
+  const onClickComplete = (index) => {
+    const newIncompleteTodos = [...incompleteTodos];
+    newIncompleteTodos.splice(index, 1);
+    const newCompleteTodos = [...completeTodos, incompleteTodos[index]];
+    setIncompleteTodos(newIncompleteTodos);
+    setCompleteTodos(newCompleteTodos);
+  };
+
+  const onClickBack = (index) => {
+    const newCompleteTodos = [...completeTodos];
+    newCompleteTodos.splice(index, 1);
+    const newIncompleteTodos = [...incompleteTodos, completeTodos[index]];
+    setCompleteTodos(newCompleteTodos);
+    setIncompleteTodos(newIncompleteTodos);
+  };
+
   return (
     <>
-      <div className="input-area">
-        {/* テキストが入力されるたびにonChangeでイベントが発生し、stateに変更が保存される。*/}
-        <input
-          placeholder="TODOを入力"
-          value={todoText}
-          onChange={onChangetodoText}
-        />
-        <button onClick={onClickAdd}>追加</button>
-      </div>
-      <div className="complete-area">
-        <p className="title">未完了のTODO</p>
-        <ul>
-          {/** stateの数だけ繰り返し描画する
-            繰り返しでhtmlタグを出力するときは一番外側にあるタグにkeyをつける。作成されたコンポーネントが一意であることを証明するため。
-            レンダリング中何番目の繰り返しの要素でイベントが発生したか判断するためにindexを第２引数に指定する。**/}
-          {incompleteTodos.map((todo, index) => {
-            return (
-              <div key={todo} className="list-row">
-                <li>{todo}</li>
-                <button>完了</button>
-                {/* 関数に引数を渡す場合はアロー関数で囲い階層を深くする*/}
-                <button onClick={() => onClickDelete(index)}>削除</button>
-              </div>
-            );
-          })}
-        </ul>
-      </div>
-      <div className="incomplete-area">
-        <p className="title">完了のTODO</p>
-        <ul>
-          {completeTodos.map((todo) => {
-            return (
-              <div key={todo} className="list-row">
-                <li>{todo}</li>
-                <button>戻す</button>
-              </div>
-            );
-          })}
-        </ul>
-      </div>
+      {/*テキストボックスと追加ボタン、未完了のTODO、完了のTODOを３つをコンポーネントにわける
+         親コンポーネントで定義した関数やstateを使えるように、子コンポーネントの呼び出し時にpropsで渡す */}
+      <InputTodo
+        todoText={todoText}
+        onChange={onChangetodoText}
+        onClick={onClickAdd}
+        disabled={incompleteTodos.length >= 5}
+      />
+      {incompleteTodos.length >= 5 && (
+        <p style={{ color: "red" }}>登録できるTODOは５個までです。</p>
+      )}
+      <IncompleteTodos
+        todos={incompleteTodos}
+        onClickComplete={onClickComplete}
+        onClickDelete={onClickDelete}
+      />
+      <CompleteTodos todos={completeTodos} onClickBack={onClickBack} />
     </>
   );
 };
